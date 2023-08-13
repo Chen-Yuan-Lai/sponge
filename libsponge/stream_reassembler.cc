@@ -18,7 +18,9 @@ StreamReassembler::StreamReassembler(const size_t capacity) : _output(capacity),
 //! possibly out-of-order, from the logical stream, and assembles any newly
 //! contiguous substrings and writes them into the output stream in order.
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
-    DUMMY_CODE(data, index, eof);
+    // 1) check if the StreamReassembler is full
+    // 2) check if the input substring is the end of the data
+    // 3) check if the input substring opverlap with other segment in the set
 }
 
 size_t StreamReassembler::unassembled_bytes() const { return {}; }

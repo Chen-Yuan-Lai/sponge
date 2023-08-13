@@ -4,16 +4,30 @@
 #include "byte_stream.hh"
 
 #include <cstdint>
+#include <set>
 #include <string>
+#include <vector>
 
 //! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
 //! possibly overlapping) into an in-order byte stream.
 class StreamReassembler {
   private:
     // Your code here -- add private members as necessary.
+    class block_node {
+      public:
+        size_t first;
+        size_t len;
+        string data;
+        block_node(const size_t first, const size_t len, const string &data) : first(first), len(len), data(data) {}
 
+        // Cuctom less-than operator
+        bool operator<(const block_node &other) const { return first < other.first; }
+    };
+    set<block_node> _block = {};
+    vector<block_node> _buffer = {};
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
+    size_t head_index = 0;
 
   public:
     //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
