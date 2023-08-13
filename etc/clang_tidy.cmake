@@ -1,3 +1,4 @@
+set(CLANG_TIDY_EXECUTABLE /usr/bin/clang-tidy)
 if (NOT CLANG_TIDY)
     if (DEFINED ENV{CLANG_TIDY})
         set (CLANG_TIDY_TMP $ENV{CLANG_TIDY})

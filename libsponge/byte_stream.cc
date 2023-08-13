@@ -22,7 +22,7 @@ size_t ByteStream::write(const string &data) {
     size_t write_len = min(data.size(), remaining_capacity());
     _bytes_written += write_len;
 
-    for (size_t i = 0; i < write_len - 1; i++) {
+    for (size_t i = 0; i < write_len; i++) {
         _buffer.push_back(data[i]);
     }
 
@@ -55,6 +55,7 @@ void ByteStream::pop_output(const size_t len) {
     auto first = _buffer.begin();
     auto last = _buffer.begin() + pop_len;
     _buffer.erase(first, last);
+    _bytes_read += pop_len;
     return;
 }
 
