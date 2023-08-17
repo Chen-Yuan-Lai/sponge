@@ -19,10 +19,45 @@ StreamReassembler::StreamReassembler(const size_t capacity) : _output(capacity),
 //! contiguous substrings and writes them into the output stream in order.
 void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
     // 1) check if the StreamReassembler is full
-    // 2) check if the input substring is the end of the data
-    // 3) check if the input substring opverlap with other segment in the set
+    size_t avaliable_byte = _capacity - unassembled_bytes() - _output.buffer_size();
+    size_t data_len = data.size();
+    if (data_len > avaliable_byte)
+        return;
+
+    // 2) push substring into the set
+    block_node segment(index, data_len, data);
+    _block.insert(segment);
+    _byte_unassemble += data_len;
+
+    // 3)  check contiguous or overlaping substrings, and merge them into a string
+    block_node end;
+    string combine;
+
+    for (auto &node : _block) {
+        if (node.first > _head_index)
+            break;
+        // remove duplicate string
+        size_t byte_duplicate = node.first - _head_index;
+        _head_index += node.data.size() - byte_duplicate;
+        string temp = node.data;
+        combine += temp.erase(0, byte_duplicate);
+        end = node;
+        _byte_unassemble -= node.len;
+    }
+
+    // delete nodes in set
+    auto start = _block.begin();
+    auto final = _block.find(end);
+    if (final != _block.end()) {
+        _block.erase(start, ++final);
+    } else {
+        _block.clear();
+    }
+
+    // write string into byte stream
+    _output.write(combine);
 }
 
-size_t StreamReassembler::unassembled_bytes() const { return {}; }
+size_t StreamReassembler::unassembled_bytes() const { return _byte_unassemble; }
 
-bool StreamReassembler::empty() const { return {}; }
+bool StreamReassembler::empty() const { return _block.empty(); }
