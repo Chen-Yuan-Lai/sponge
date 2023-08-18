@@ -28,8 +28,8 @@ size_t ByteStream::write(const string &data) {
 
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
-    if (buffer_empty())
-        return 0;
+    if (buffer_empty() || len == 0)
+        return "";
 
     size_t peek_len = min(len, buffer_size());
     size_t counter = 0;
@@ -46,7 +46,7 @@ string ByteStream::peek_output(const size_t len) const {
 
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
-    if (buffer_empty())
+    if (buffer_empty() || len == 0)
         return;
     size_t pop_len = min(len, buffer_size());
     auto first = _buffer.begin();

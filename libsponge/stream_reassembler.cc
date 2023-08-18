@@ -7,9 +7,6 @@
 
 // You will need to add private members to the class declaration in `stream_reassembler.hh`
 
-template <typename... Targs>
-void DUMMY_CODE(Targs &&.../* unused */) {}
-
 using namespace std;
 
 StreamReassembler::StreamReassembler(const size_t capacity) : _output(capacity), _capacity(capacity) {}
@@ -25,20 +22,30 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
         return;
 
     // 2) push substring into the set
-    block_node segment(index, data_len, data);
+    block_node segment;
+
+    segment.data = data;
+    segment.len = data.size();
+    segment.first = index;
+    if (eof)
+        segment.eof_flag = true;
     _block.insert(segment);
+
     _byte_unassemble += data_len;
 
     // 3)  check contiguous or overlaping substrings, and merge them into a string
     block_node end;
-    string combine;
+    string combine = "";
+    size_t current_index = _head_index;
 
     for (auto &node : _block) {
-        if (node.first > _head_index)
-            break;
+        if (node.first > current_index) {
+            current_index = node.first;
+            continue;
+        }
         // remove duplicate string
-        size_t byte_duplicate = node.first - _head_index;
-        _head_index += node.data.size() - byte_duplicate;
+        size_t byte_duplicate = current_index - node.first;
+        // _head_index += node.data.size() - byte_duplicate;
         string temp = node.data;
         combine += temp.erase(0, byte_duplicate);
         end = node;
@@ -56,8 +63,10 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
 
     // write string into byte stream
     _output.write(combine);
+    if (end.eof_flag)
+        _output.end_input();
 }
 
 size_t StreamReassembler::unassembled_bytes() const { return _byte_unassemble; }
 
-bool StreamReassembler::empty() const { return _block.empty(); }
+bool StreamReassembler::empty() const { return _byte_unassemble == 0; }

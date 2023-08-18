@@ -15,16 +15,15 @@ class StreamReassembler {
     // Your code here -- add private members as necessary.
     class block_node {
       public:
-        size_t first;
-        size_t len;
-        string data;
-        block_node(const size_t first = 0, const size_t len = 0, const string &data = "")
-            : first(first), len(len), data(data) {}
+        size_t first = 0;
+        size_t len = 0;
+        std::string data = "";
+        bool eof_flag = false;
 
         // Custom less-than operator
         bool operator<(const block_node &other) const { return first < other.first; }
     };
-    set<block_node> _block = {};
+    std::set<block_node> _block = {};
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
     size_t _head_index = 0;
