@@ -34,23 +34,43 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     _byte_unassemble += data_len;
 
     // 3)  check contiguous or overlaping substrings, and merge them into a string
+    auto it = _block.begin();
+
+    while (it != _block.end()) {
+        if (it->first >= _head_index)
+            break;
+        it++;
+    };
+
+    size_t head_dup = 0;
+    size_t end_dup = 0;
+    if (!_block.empty()) {
+        if (it == _block.begin()) {
+            head_dup = _head_index - index;
+            end_dup = (index + data_len - 1) - it->first;
+        } else if (it == _block.end()) {
+            head_dup = (it->first + it->len - 1) - index;
+        } else {
+                }
+    }
+
     block_node end;
     string combine = "";
     size_t current_index = _head_index;
 
-    for (auto &node : _block) {
-        if (node.first > current_index) {
-            current_index = node.first;
-            continue;
-        }
-        // remove duplicate string
-        size_t byte_duplicate = current_index - node.first;
-        // _head_index += node.data.size() - byte_duplicate;
-        string temp = node.data;
-        combine += temp.erase(0, byte_duplicate);
-        end = node;
-        _byte_unassemble -= node.len;
-    }
+    // for (auto &node : _block) {
+    //     if (node.first > current_index) {
+    //         current_index = node.first;
+    //         continue;
+    //     }
+    //     // remove duplicate string
+    //     byte_duplicate = current_index - node.first;
+    //     // _head_index += node.data.size() - byte_duplicate;
+    //     string temp = node.data;
+    //     combine += temp.erase(0, byte_duplicate);
+    //     end = node;
+    //     _byte_unassemble -= node.len;
+    // }
 
     // delete nodes in set
     auto start = _block.begin();
